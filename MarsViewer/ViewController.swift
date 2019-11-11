@@ -271,7 +271,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                                     
                                     if let image = UIImage(data: data) {
                                         
-                                        let text = "\(photo.img_src)\nDate: \(photo.earth_date)"
+                                        let text = "\(photo.img_src)\nDate: \(photo.earth_date)\n\(photo.rover.name)"
 
                                         let photoView = PhotoRowData(name: photo.img_src, image: image, text: text)
                                         
