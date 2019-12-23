@@ -39,7 +39,7 @@ struct PhotoRowData {
     
 }
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
+class ViewController: UIViewController, UITableViewDelegate {
     
     let headerView = UIView()
     let marsRoverLabel = UILabel()
@@ -60,47 +60,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     var previousSol = "1"
     
     var photoRowDataList = [PhotoRowData]()
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.photoRowDataList.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as UITableViewCell
-        
-        cell.textLabel?.text = self.photoRowDataList[indexPath.item].name
-        cell.imageView?.image = self.photoRowDataList[indexPath.item].image
-        
-        return cell
-        
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        print("Row selected\(indexPath.item)")
-        
-        self.backgroundView.layer.opacity = 1.0
-        
-        let image = self.photoRowDataList[indexPath.item].image
-        
-        if image.size.width > self.view.frame.width {
-            
-            let scale = self.view.frame.width / image.size.width
-            
-            self.imageView.frame.size = CGSize(width: self.view.frame.width, height: image.size.height * scale)
-            
-        }
-        else {
-            self.imageView.frame.size = CGSize(width: image.size.width, height: image.size.height)
-        }
-
-        self.imageView.center = self.backgroundView.center
-        self.imageView.image = image
-        
-        self.textView.text = self.photoRowDataList[indexPath.item].text
-        
-    }
     
     override func viewDidLoad() {
         
@@ -214,17 +173,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         
     }
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        
-        if let text = textField.text {
-            
-            self.previousSol = text
-            textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
-            
-        }
-        
-    }
-    
     func begin() {
         self.parsePhotos(sol: 1)
     }
@@ -238,7 +186,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func parsePhotos(sol: Int) {
-        
+        /*
+        DispatchQueue.global(qos: .background).async {
+            
+        }
+        */
         if let url = URL(string: "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=\(sol)&api_key=nujVIFrr9L96fhWX8XhZgjWnRSvXiq5jh5nljKZy") {
             
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
@@ -303,6 +255,66 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
         URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
+    }
+    
+}
+
+extension ViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.photoRowDataList.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as UITableViewCell
+        
+        cell.textLabel?.text = self.photoRowDataList[indexPath.item].name
+        cell.imageView?.image = self.photoRowDataList[indexPath.item].image
+        
+        return cell
+        
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        print("Row selected\(indexPath.item)")
+        
+        self.backgroundView.layer.opacity = 1.0
+        
+        let image = self.photoRowDataList[indexPath.item].image
+        
+        if image.size.width > self.view.frame.width {
+            
+            let scale = self.view.frame.width / image.size.width
+            
+            self.imageView.frame.size = CGSize(width: self.view.frame.width, height: image.size.height * scale)
+            
+        }
+        else {
+            self.imageView.frame.size = CGSize(width: image.size.width, height: image.size.height)
+        }
+
+        self.imageView.center = self.backgroundView.center
+        self.imageView.image = image
+        
+        self.textView.text = self.photoRowDataList[indexPath.item].text
+        
+    }
+    
+}
+
+extension ViewController: UITextFieldDelegate {
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        
+        if let text = textField.text {
+            
+            self.previousSol = text
+            textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
+            
+        }
+        
     }
     
 }
